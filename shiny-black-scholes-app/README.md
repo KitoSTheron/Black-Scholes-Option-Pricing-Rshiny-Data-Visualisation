@@ -43,7 +43,3 @@ The Black-Scholes model is a mathematical model used for pricing European-style 
 - **Time to Expiration**: Enter the time remaining until expiration (in years).
 - **Risk-Free Rate**: Enter the risk-free interest rate (as a decimal).
 - **Volatility**: Enter the volatility of the underlying asset (as a decimal).
-
-## License
-
-This project is licensed under the MIT License.
