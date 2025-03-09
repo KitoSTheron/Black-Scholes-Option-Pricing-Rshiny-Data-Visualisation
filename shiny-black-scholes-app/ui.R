@@ -22,7 +22,7 @@ ui <- fluidPage(
   theme = dark_theme,
   
   # Application title
-  titlePanel("European Option Pricing using the Black-Scholes Model"),
+  titlePanel(h1("European Option Pricing using the Black-Scholes Model", align = "center")),
   
   # Sidebar layout with input and output definitions
   fluidRow(
@@ -45,6 +45,7 @@ ui <- fluidPage(
         sliderInput("volatilitySlider", "Volatility (σ):", min = 0, max = 1, value = 0.2, step = 0.01),
         p("The volatility of the stock's returns, as a decimal."),
         
+        
       )
     ),
     
@@ -53,23 +54,29 @@ ui <- fluidPage(
       h3("Option Price Results"),
       verbatimTextOutput("call_price"),
       verbatimTextOutput("put_price"),
-      plotOutput("heatmapPlotCall", height = "400px"),
-      plotOutput("heatmapPlotPut", height = "400px")
-    ),
-    
-    # Display the Black-Scholes equation
-    fluidRow(
-      column(12,
-             h4("Black-Scholes Equation:"),
-             p("Call Option Price: C = S * N(d1) - K * exp(-r * T) * N(d2)"),
-             p("Put Option Price: P = K * exp(-r * T) * N(-d2) - S * N(-d1)"),
-             p("where:"),
-             p("d1 = (log(S / K) + (r + σ^2 / 2) * T) / (σ * sqrt(T))"),
-             p("d2 = d1 - σ * sqrt(T)")
+      fluidRow(
+        selectInput("xAxis", "X-Axis:", choices = c("Stock Price" = "stock_price", "Volatility" = "volatility", "Risk-Free Rate" = "risk_free_rate", "Time to Expiration" = "time_to_expiration", "Strike Price" = "strike_price"), selected = "stock_price"),
+        selectInput("yAxis", "Y-Axis:", choices = c("Stock Price" = "stock_price", "Volatility" = "volatility", "Risk-Free Rate" = "risk_free_rate", "Time to Expiration" = "time_to_expiration", "Strike Price" = "strike_price"), selected = "volatility")
+      ),
+      fluidRow(
+        column(6, plotOutput("heatmap_plot_call", height = "400px")),
+        column(6, plotOutput("heatmap_plot_put", height = "400px"))
       )
-    ),
+    )
+  ),
+  
+  # Display the Black-Scholes equation
+  fluidRow(
+    column(12,
+      h4("Black-Scholes Equation:"),
+      p("Call Option (right to buy) Price: C = Current Stock Price * Cumulative Distribution Function of d1 - Strike Price * Exponential Function of (-Risk-Free Rate * Time to Expiration) * Cumulative Distribution Function of d2"),
+      p("Put Option (right to sell) Price: P = Strike Price * Exponential Function of (-Risk-Free Rate * Time to Expiration) * Cumulative Distribution Function of -d2 - Current Stock Price * Cumulative Distribution Function of -d1"),
+      p("where:"),
+      p("d1 = (Natural Logarithm of (Current Stock Price / Strike Price) + (Risk-Free Rate + (Volatility Squared / 2)) * Time to Expiration) / (Volatility * Square Root of Time to Expiration)"),
+      p("d2 = d1 - Volatility * Square Root of Time to Expiration")
+    )
   )
 )
 
 # Run the application 
-shinyApp(ui = ui, server = server, options = list(height = 1080))
+shinyApp(ui = ui, server = server, options = list(height = 2000))
