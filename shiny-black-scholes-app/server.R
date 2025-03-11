@@ -1,6 +1,8 @@
 library(shiny)
 library(ggplot2)
 library(reshape2)
+library(plotly)
+
 
 # Black-Scholes function
 black_scholes <- function(stock_price, strike_price, time_to_expiration, risk_free_rate, volatility) {
@@ -136,4 +138,82 @@ server <- function(input, output) {
         legend.title = element_text(color = "#f8f9fa")
       )
   })
+  output$interactive_plot_call <- renderPlotly({
+    n <- 15  # Reduce the number of points to avoid memory issues
+    
+    x_var <- switch(input$xAxis,
+                    "stock_price" = seq(0, 2 * input$strikePrice, length.out = n),
+                    "volatility" = seq(0.01, 1, length.out = n),
+                    "risk_free_rate" = seq(0, 1, length.out = n),
+                    "time_to_expiration" = seq(0.01, 2, length.out = n),
+                    "strike_price" = seq(0, 2 * input$strikePrice, length.out = n),
+                    stop("Invalid xAxis value"))
+    
+    y_var <- switch(input$yAxis,
+                    "stock_price" = seq(0, 2 * input$strikePrice, length.out = n),
+                    "volatility" = seq(0.01, 1, length.out = n),
+                    "risk_free_rate" = seq(0, 1, length.out = n),
+                    "time_to_expiration" = seq(0.01, 2, length.out = n),
+                    "strike_price" = seq(0, 2 * input$strikePrice, length.out = n),
+                    stop("Invalid yAxis value"))
+    
+    z_var <- expand.grid(x_var = x_var, y_var = y_var)
+    z_var$call_price <- mapply(function(x, y) {
+      args <- list(stock_price = input$stockPrice,
+                   strike_price = input$strikePrice,
+                   time_to_expiration = input$timeToExpiration,
+                   risk_free_rate = input$riskFreeRateSlider,
+                   volatility = input$volatilitySlider)
+      args[[input$xAxis]] <- x
+      args[[input$yAxis]] <- y
+      do.call(black_scholes, args)$call
+    }, z_var$x_var, z_var$y_var)
+    
+    plot_ly(z_var, x = ~x_var, y = ~y_var, z = ~call_price, type = 'scatter3d', mode = 'markers', marker = list(size = 3, color = ~call_price, colorscale = list(c(0, 'darkred'), c(0.5, 'darkorange'), c(1, 'darkgreen')))) %>%
+      layout(scene = list(xaxis = list(title = input$xAxis, backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c"),
+                yaxis = list(title = input$yAxis, backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c"),
+                zaxis = list(title = 'Call Price', backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c")),
+         paper_bgcolor = "#343a40",
+         plot_bgcolor = "#343a40")
+  })
+
+  output$interactive_plot_put <- renderPlotly({
+    n <- 15  # Reduce the number of points to avoid memory issues
+    
+    x_var <- switch(input$xAxis,
+                    "stock_price" = seq(0, 2 * input$strikePrice, length.out = n),
+                    "volatility" = seq(0.01, 1, length.out = n),
+                    "risk_free_rate" = seq(0, 1, length.out = n),
+                    "time_to_expiration" = seq(0.01, 2, length.out = n),
+                    "strike_price" = seq(0, 2 * input$strikePrice, length.out = n),
+                    stop("Invalid xAxis value"))
+    
+    y_var <- switch(input$yAxis,
+                    "stock_price" = seq(0, 2 * input$strikePrice, length.out = n),
+                    "volatility" = seq(0.01, 1, length.out = n),
+                    "risk_free_rate" = seq(0, 1, length.out = n),
+                    "time_to_expiration" = seq(0.01, 2, length.out = n),
+                    "strike_price" = seq(0, 2 * input$strikePrice, length.out = n),
+                    stop("Invalid yAxis value"))
+    
+    z_var <- expand.grid(x_var = x_var, y_var = y_var)
+    z_var$put_price <- mapply(function(x, y) {
+      args <- list(stock_price = input$stockPrice,
+                   strike_price = input$strikePrice,
+                   time_to_expiration = input$timeToExpiration,
+                   risk_free_rate = input$riskFreeRateSlider,
+                   volatility = input$volatilitySlider)
+      args[[input$xAxis]] <- x
+      args[[input$yAxis]] <- y
+      do.call(black_scholes, args)$put
+    }, z_var$x_var, z_var$y_var)
+    
+    plot_ly(z_var, x = ~x_var, y = ~y_var, z = ~put_price, type = 'scatter3d', mode = 'markers', marker = list(size = 3, color = ~put_price, colorscale = list(c(0, 'darkred'), c(0.5, 'darkorange'), c(1, 'darkgreen')))) %>%
+      layout(scene = list(xaxis = list(title = input$xAxis, backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c"),
+                          yaxis = list(title = input$yAxis, backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c"),
+                          zaxis = list(title = 'Put Price', backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c")),
+             paper_bgcolor = "#343a40",
+             plot_bgcolor = "#343a40")
+  })
+
 }

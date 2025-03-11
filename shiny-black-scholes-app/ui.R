@@ -1,5 +1,6 @@
 library(shiny)
 library(bslib)
+library(plotly)
 
 # Source the server file
 source("server.R")
@@ -18,62 +19,63 @@ dark_theme <- bs_theme(
 )
 
 # Define UI for the Black-Scholes option pricing app
-ui <- fluidPage(
+ui <- navbarPage(
+  title = div(h1("European Option Pricing using the Black-Scholes Model")),
   theme = dark_theme,
   
-  # Application title
-  titlePanel(h1("European Option Pricing using the Black-Scholes Model", align = "center")),
-  
-  # Sidebar layout with input and output definitions
-  fluidRow(
-    
-    # Sidebar panel for inputs
-    column(4,
-      wellPanel(
-        numericInput("stockPrice", "Stock Price (S):", value = 100),
-        p("The current price of the underlying stock."),
-        
-        numericInput("strikePrice", "Strike Price (K):", value = 100),
-        p("The price at which the option can be exercised."),
-        
-        numericInput("timeToExpiration", "Time to Expiration (T in years):", value = 1),
-        p("The time remaining until the option's expiration, in years."),
-        
-        sliderInput("riskFreeRateSlider", "Risk-Free Rate (r):", min = 0, max = 1, value = 0.05, step = 0.01),
-        p("The risk-free interest rate, as a decimal."),
-        
-        sliderInput("volatilitySlider", "Volatility (σ):", min = 0, max = 1, value = 0.2, step = 0.01),
-        p("The volatility of the stock's returns, as a decimal."),
-        
-        
-      )
-    ),
-    
-    # Main panel for displaying outputs
-    column(8,
-      h3("Option Price Results"),
-      verbatimTextOutput("call_price"),
-      verbatimTextOutput("put_price"),
-      fluidRow(
-        selectInput("xAxis", "X-Axis:", choices = c("Stock Price" = "stock_price", "Volatility" = "volatility", "Risk-Free Rate" = "risk_free_rate", "Time to Expiration" = "time_to_expiration", "Strike Price" = "strike_price"), selected = "stock_price"),
-        selectInput("yAxis", "Y-Axis:", choices = c("Stock Price" = "stock_price", "Volatility" = "volatility", "Risk-Free Rate" = "risk_free_rate", "Time to Expiration" = "time_to_expiration", "Strike Price" = "strike_price"), selected = "volatility")
+  tabPanel("Inputs",
+    fluidRow(
+      column(3,
+        wellPanel(
+          h3("Input Parameters"),
+          numericInput("stockPrice", "Stock Price (S):", value = 100),
+          p("Current price of the underlying stock."),
+          
+          numericInput("strikePrice", "Strike Price (K):", value = 100),
+          p("Price at which the option can be exercised."),
+          
+          numericInput("timeToExpiration", "Time to Expiration (T in years):", value = 1),
+          p("Time remaining until the option's expiration, in years."),
+          
+          sliderInput("riskFreeRateSlider", "Risk-Free Rate (r):", min = 0, max = 1, value = 0.05, step = 0.01),
+              p("The theoretical rate of return of an investment with zero risk."),
+          
+          sliderInput("volatilitySlider", "Volatility (σ):", min = 0, max = 1, value = 0.2, step = 0.01),
+          p("Volatility of the stock's returns, as a decimal."),
+          
+          selectInput("xAxis", "Axis Value 1:", choices = c("Stock Price" = "stock_price", "Volatility" = "volatility", "Risk-Free Rate" = "risk_free_rate", "Time to Expiration" = "time_to_expiration", "Strike Price" = "strike_price"), selected = "stock_price"),
+          selectInput("yAxis", "Axis Value 2:", choices = c("Stock Price" = "stock_price", "Volatility" = "volatility", "Risk-Free Rate" = "risk_free_rate", "Time to Expiration" = "time_to_expiration", "Strike Price" = "strike_price"), selected = "volatility")
+        )
       ),
-      fluidRow(
-        column(6, plotOutput("heatmap_plot_call", height = "400px")),
-        column(6, plotOutput("heatmap_plot_put", height = "400px"))
+      
+      column(9,
+        h3("Option Price Results"),
+        fluidRow(
+          column(6, verbatimTextOutput("call_price")),
+          column(6, verbatimTextOutput("put_price"))
+        ),
+        fluidRow(
+          column(6, plotlyOutput("interactive_plot_call", height = "700px",width = "700px")),
+          column(6, plotlyOutput("interactive_plot_put", height = "700px",width = "700px"))
+        ),
+        fluidRow(
+          column(6, plotOutput("heatmap_plot_call", height = "400px")),
+          column(6, plotOutput("heatmap_plot_put", height = "400px"))
+        )
       )
     )
   ),
-  
-  # Display the Black-Scholes equation
-  fluidRow(
-    column(12,
-      h4("Black-Scholes Equation:"),
-      p("Call Option (right to buy) Price: C = Current Stock Price * Cumulative Distribution Function of d1 - Strike Price * Exponential Function of (-Risk-Free Rate * Time to Expiration) * Cumulative Distribution Function of d2"),
-      p("Put Option (right to sell) Price: P = Strike Price * Exponential Function of (-Risk-Free Rate * Time to Expiration) * Cumulative Distribution Function of -d2 - Current Stock Price * Cumulative Distribution Function of -d1"),
-      p("where:"),
-      p("d1 = (Natural Logarithm of (Current Stock Price / Strike Price) + (Risk-Free Rate + (Volatility Squared / 2)) * Time to Expiration) / (Volatility * Square Root of Time to Expiration)"),
-      p("d2 = d1 - Volatility * Square Root of Time to Expiration")
+    
+  tabPanel("Black-Scholes Equation",
+    fluidRow(
+      column(12,
+        h4("Black-Scholes Equation:"),
+        p("Call Option (right to buy) Price: C = Current Stock Price * Cumulative Distribution Function of d1 - Strike Price * Exponential Function of (-Risk-Free Rate * Time to Expiration) * Cumulative Distribution Function of d2"),
+        p("Put Option (right to sell) Price: P = Strike Price * Exponential Function of (-Risk-Free Rate * Time to Expiration) * Cumulative Distribution Function of -d2 - Current Stock Price * Cumulative Distribution Function of -d1"),
+        p("where:"),
+        p("d1 = (Natural Logarithm of (Current Stock Price / Strike Price) + (Risk-Free Rate + (Volatility Squared / 2)) * Time to Expiration) / (Volatility * Square Root of Time to Expiration)"),
+        p("d2 = d1 - Volatility * Square Root of Time to Expiration")
+      )
     )
   )
 )
