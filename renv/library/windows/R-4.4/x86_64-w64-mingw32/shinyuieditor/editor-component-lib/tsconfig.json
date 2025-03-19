@@ -1,8 +1,0 @@
-{
-  "extends": "shared-configs/tsconfig.json",
-  "include": ["src"],
-  "compilerOptions": {
-    "esModuleInterop": true
-  },
-  "exclude": ["node_modules"]
-}

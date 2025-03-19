@@ -1,6 +1,0 @@
-check_for_app_file	check_for_app_file
-create_output_subscribers	create_output_subscribers
-insert_server_code	insert_server_code
-launch_editor	launch_editor
-select_server_code	select_server_code
-watch_for_app_close	watch_for_app_close
