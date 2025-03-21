@@ -216,4 +216,53 @@ server <- function(input, output) {
              plot_bgcolor = "#343a40")
   })
 
+  output$parallel_plot <- renderPlotly({
+    n <- 20  # Number of data points
+    
+    # Create base data frame with all variables
+    data <- data.frame(
+      stock_price = seq(0, 2 * input$strikePrice, length.out = n),
+      strike_price = rep(input$strikePrice, n),
+      time_to_expiration = rep(input$timeToExpiration, n),
+      risk_free_rate = rep(input$riskFreeRateSlider, n),
+      volatility = rep(input$volatilitySlider, n)
+    )
+    
+    # Calculate option prices for each point
+    prices <- mapply(function(s) {
+      result <- black_scholes(
+        stock_price = s,
+        strike_price = input$strikePrice,
+        time_to_expiration = input$timeToExpiration,
+        risk_free_rate = input$riskFreeRateSlider,
+        volatility = input$volatilitySlider
+      )
+      c(result$call, result$put)
+    }, data$stock_price)
+    
+    data$call_price <- prices[1,]
+    data$put_price <- prices[2,]
+    
+    plot_ly() %>%
+      add_trace(
+        type = 'parcoords',
+        line = list(color = data$stock_price,
+                   colorscale = list(c(0,'darkred'), c(0.5,'darkorange'), c(1,'darkgreen'))),
+        dimensions = list(
+          list(range = range(data$stock_price), label = 'Stock Price', values = data$stock_price),
+          list(range = range(data$strike_price), label = 'Strike Price', values = data$strike_price),
+          list(range = range(data$time_to_expiration), label = 'Time to Expiration', values = data$time_to_expiration),
+          list(range = range(data$risk_free_rate), label = 'Risk-Free Rate', values = data$risk_free_rate),
+          list(range = range(data$volatility), label = 'Volatility', values = data$volatility),
+          list(range = range(data$call_price), label = 'Call Price', values = data$call_price),
+          list(range = range(data$put_price), label = 'Put Price', values = data$put_price)
+        )
+      ) %>%
+      layout(
+        paper_bgcolor = "#343a40",
+        plot_bgcolor = "#343a40",
+        font = list(color = "#f8f9fa")
+      )
+  })
+
 }

@@ -21,10 +21,18 @@ dark_theme <- bs_theme(
 
 # Define UI for the Black-Scholes option pricing app
 ui <- page_navbar(
-  title = "European Option Pricing",
+  title = tags$span(
+    "European Option Pricing   |   Made by ", 
+    tags$a(href = "https://www.linkedin.com/in/kito-theron-101056268/", 
+           "Kito Theron", 
+           target = "_blank", 
+           style = "color: #007bff;"),
+    "   |"
+  ),
   selected = "Option Pricing",
   collapsible = TRUE,
   theme = dark_theme,
+  
   
   # Main App Panel
   nav_panel(
@@ -98,19 +106,21 @@ ui <- page_navbar(
             column(6, verbatimTextOutput("call_price", placeholder = FALSE)),
             column(6, verbatimTextOutput("put_price", placeholder = FALSE))
           ),
-          grid_container(
+            grid_container(
             layout = c(
               "plot1 plot2",
-              "plot3 plot4"
+              "plot3 plot4",
+              "plot5 plot5"
             ),
-            row_sizes = c("1fr", "1fr"),
+            row_sizes = c("1fr", "1fr", "1fr"),
             col_sizes = c("1fr", "1fr"),
             gap_size = "10px",
             grid_card("plot1", plotlyOutput("interactive_plot_call"), aspect_ratio = 0.9),
             grid_card("plot2", plotlyOutput("interactive_plot_put"), aspect_ratio = 0.9),
             grid_card("plot3", plotOutput("heatmap_plot_call"), aspect_ratio = 0.9),
-            grid_card("plot4", plotOutput("heatmap_plot_put"), aspect_ratio = 0.9)
-          )
+            grid_card("plot4", plotOutput("heatmap_plot_put"), aspect_ratio = 0.9),
+            grid_card("plot5", plotlyOutput("parallel_plot"), aspect_ratio = 0.9)
+            )
         )
       )
     )
