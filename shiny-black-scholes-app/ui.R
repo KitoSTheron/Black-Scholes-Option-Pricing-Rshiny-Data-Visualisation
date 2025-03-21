@@ -142,4 +142,4 @@ ui <- page_navbar(
 )
 
 # Run the application 
-shinyApp(ui = ui, server = server, options = list(height = 1000))
+shinyApp(ui = ui, server = server, options = list(height = "1300"))
