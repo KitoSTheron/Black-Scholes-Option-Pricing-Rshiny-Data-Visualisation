@@ -1,45 +1,58 @@
-# Shiny Black-Scholes Option Pricing App
+# Customisable Option Pricing Visualisation using the Black-Scholes Model
 
-This project is an R Shiny application that visualizes the pricing of European options using the Black-Scholes model. Users can customize various input parameters through a sidebar, and the visualizations update in real time based on these inputs.
+## Overview
+This Shiny application provides an interactive and visual way to explore the pricing of European-style call and put options using the Black-Scholes model. The app includes a variety of customisable graphs that allow users to analyse how different parameters affect option prices. 
 
-## Files Overview
+### Features
+- **3D Scatter Plots**: Visualise the relationship between two parameters (e.g., stock price and volatility) and the resulting call or put option prices.
+- **Heatmaps**: Explore the option price distribution across two parameters, with colour gradients representing price levels.
+- **Parallel Coordinates Plot**: Analyse the combined impact of multiple parameters (e.g., stock price, volatility, time to expiration) on call and put prices.
 
-- **server.R**: Contains the server logic for the Shiny application. It processes user inputs from the UI, calculates the option prices using the Black-Scholes model, and updates the visualizations in real time.
+### Customisation
+The graphs are fully customisable:
+- Select the **Value 1** and **Value 2** parameters (e.g., stock price, volatility, risk-free rate, time to expiration, or strike price).
+- Adjust input parameters such as:
+  - **Stock Price (S)**: The current price of the underlying stock.
+  - **Strike Price (K)**: The price at which the option can be exercised.
+  - **Time to Expiration (T)**: The time remaining until the option expires.
+  - **Risk-Free Rate (r)**: The rate of return of a risk-free investment.
+  - **Volatility (σ)**: The degree of variation in the stock's price over time.
 
-- **ui.R**: Defines the user interface of the Shiny application. It includes a sidebar for customizable inputs such as stock price, strike price, time to expiration, risk-free rate, and volatility. It also contains output elements for displaying the calculated option prices and visualizations.
+These customisations allow users to tailor the visualisations to their specific needs and gain deeper insights into option pricing dynamics.
 
-## How to Run the App
+---
 
-1. Ensure you have R and RStudio installed on your machine.
-2. Install the required packages if you haven't already:
+## Graphs Included
+1. **3D Scatter Plots**:
+   - One for call option prices.
+   - One for put option prices.
+   - These plots show how option prices change with two selected parameters.
 
-   ```R
-   install.packages(c("shiny", "ggplot2"))
-   ```
+2. **Heatmaps**:
+   - One for call option prices.
+   - One for put option prices.
+   - Heatmaps provide a clear visual representation of price levels across two parameters.
 
-3. Open the `ui.R` file in RStudio.
-4. Click on the "Run App" button in RStudio, or run the following command in the R console:
+3. **Parallel Coordinates Plot**:
+   - This plot allows users to analyse the combined effect of multiple parameters on option prices, providing a holistic view of the pricing model.
 
-   ```R
+---
+
+## How to Run the Programme
+### Option 1: Run Online
+You can access the application directly via the following URL:
+[https://kitotheron.shinyapps.io/Customisable_Option_Pricing_Visualisation/](https://kitotheron.shinyapps.io/Customisable_Option_Pricing_Visualisation/)
+
+### Option 2: Run Locally
+To run the application locally, follow these steps:
+1. Clone or download the repository to your local machine.
+2. Ensure you have R and the required packages installed. The key packages include:
+   - `shiny`
+   - `plotly`
+   - `ggplot2`
+   - `bslib`
+   - `gridlayout` (install from GitHub if necessary using `remotes::install_github("rstudio/gridlayout")`)
+3. Open the R console or RStudio and set the working directory to the folder containing the app.
+4. Run the following command:
+   ```r
    shiny::runApp()
-   ```
-
-5. The application will launch in your default web browser.
-
-## Black-Scholes Model
-
-The Black-Scholes model is a mathematical model used for pricing European-style options. It calculates the theoretical price of options based on several factors, including:
-
-- **Stock Price (S)**: The current price of the underlying asset.
-- **Strike Price (K)**: The price at which the option can be exercised.
-- **Time to Expiration (T)**: The time remaining until the option expires, expressed in years.
-- **Risk-Free Rate (r)**: The theoretical return on an investment with zero risk, typically represented by government bonds.
-- **Volatility (σ)**: A measure of the price fluctuations of the underlying asset.
-
-## Input Parameters
-
-- **Stock Price**: Enter the current price of the underlying asset.
-- **Strike Price**: Enter the strike price of the option.
-- **Time to Expiration**: Enter the time remaining until expiration (in years).
-- **Risk-Free Rate**: Enter the risk-free interest rate (as a decimal).
-- **Volatility**: Enter the volatility of the underlying asset (as a decimal).
