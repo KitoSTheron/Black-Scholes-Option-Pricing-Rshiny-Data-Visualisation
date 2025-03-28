@@ -170,11 +170,14 @@ server <- function(input, output) {
     }, z_var$x_var, z_var$y_var)
     
     plot_ly(z_var, x = ~x_var, y = ~y_var, z = ~call_price, type = 'scatter3d', mode = 'markers', marker = list(size = 3, color = ~call_price, colorscale = list(c(0, 'darkred'), c(0.5, 'darkorange'), c(1, 'darkgreen')))) %>%
-      layout(scene = list(xaxis = list(title = input$xAxis, backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c"),
+      layout(title = "Call Option 3D Scatter Plot",
+        scene = list(xaxis = list(title = input$xAxis, backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c"),
                 yaxis = list(title = input$yAxis, backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c"),
                 zaxis = list(title = 'Call Price', backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c")),
          paper_bgcolor = "#343a40",
-         plot_bgcolor = "#343a40")
+         plot_bgcolor = "#343a40",
+         font = list(color = "#f8f9fa")
+         )
   })
 
   output$interactive_plot_put <- renderPlotly({
@@ -209,11 +212,13 @@ server <- function(input, output) {
     }, z_var$x_var, z_var$y_var)
     
     plot_ly(z_var, x = ~x_var, y = ~y_var, z = ~put_price, type = 'scatter3d', mode = 'markers', marker = list(size = 3, color = ~put_price, colorscale = list(c(0, 'darkred'), c(0.5, 'darkorange'), c(1, 'darkgreen')))) %>%
-      layout(scene = list(xaxis = list(title = input$xAxis, backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c"),
+      layout(title = "Put Option 3D Scatter Plot",
+         scene = list(xaxis = list(title = input$xAxis, backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c"),
                           yaxis = list(title = input$yAxis, backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c"),
                           zaxis = list(title = 'Put Price', backgroundcolor = "#343a40", color = "#f8f9fa", gridcolor = "#4e5d6c")),
              paper_bgcolor = "#343a40",
-             plot_bgcolor = "#343a40")
+             plot_bgcolor = "#343a40",
+             font = list(color = "#f8f9fa"))
   })
 
   output$parallel_plot <- renderPlotly({
@@ -221,7 +226,8 @@ server <- function(input, output) {
     
     # Create base data frame with all variables
     data <- data.frame(
-      stock_price = seq(0, 2 * input$strikePrice, length.out = n),
+      x_axis = seq(0, 2 * input$strikePrice, length.out = n),  # Use x-axis value as the first column
+      stock_price = rep(input$stockPrice, n),
       strike_price = rep(input$strikePrice, n),
       time_to_expiration = rep(input$timeToExpiration, n),
       risk_free_rate = rep(input$riskFreeRateSlider, n),
@@ -229,16 +235,16 @@ server <- function(input, output) {
     )
     
     # Calculate option prices for each point
-    prices <- mapply(function(s) {
+    prices <- mapply(function(x) {
       result <- black_scholes(
-        stock_price = s,
+        stock_price = x,
         strike_price = input$strikePrice,
         time_to_expiration = input$timeToExpiration,
         risk_free_rate = input$riskFreeRateSlider,
         volatility = input$volatilitySlider
       )
       c(result$call, result$put)
-    }, data$stock_price)
+    }, data$x_axis)
     
     data$call_price <- prices[1,]
     data$put_price <- prices[2,]
@@ -246,9 +252,10 @@ server <- function(input, output) {
     plot_ly() %>%
       add_trace(
         type = 'parcoords',
-        line = list(color = data$stock_price,
+        line = list(color = data$x_axis,
                    colorscale = list(c(0,'darkred'), c(0.5,'darkorange'), c(1,'darkgreen'))),
         dimensions = list(
+          list(range = range(data$x_axis), label = input$xAxis, values = data$x_axis),
           list(range = range(data$stock_price), label = 'Stock Price', values = data$stock_price),
           list(range = range(data$strike_price), label = 'Strike Price', values = data$strike_price),
           list(range = range(data$time_to_expiration), label = 'Time to Expiration', values = data$time_to_expiration),
@@ -259,6 +266,7 @@ server <- function(input, output) {
         )
       ) %>%
       layout(
+        title = "Parallel Coordinates Plot",
         paper_bgcolor = "#343a40",
         plot_bgcolor = "#343a40",
         font = list(color = "#f8f9fa")

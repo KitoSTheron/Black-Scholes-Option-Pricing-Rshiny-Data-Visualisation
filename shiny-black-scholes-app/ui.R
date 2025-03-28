@@ -8,38 +8,42 @@ source("server.R")
 
 # Define a dark theme using bslib
 dark_theme <- bs_theme(
-  bg = "#343a40", 
-  fg = "#f8f9fa", 
-  primary = "#007bff", 
-  secondary = "#6c757d", 
-  success = "#28a745", 
-  info = "#17a2b8", 
-  warning = "#ffc107", 
-  danger = "#dc3545", 
+  bg = "#343a40",
+  fg = "#f8f9fa",
+  primary = "#007bff",
+  secondary = "#6c757d",
+  success = "#28a745",
+  info = "#17a2b8",
+  warning = "#ffc107",
+  danger = "#dc3545",
   base_font = font_google("Roboto")
 )
 
 # Define UI for the Black-Scholes option pricing app
 ui <- page_navbar(
   title = tags$span(
-    "European Option Pricing   |   Made by ", 
-    tags$a(href = "https://www.linkedin.com/in/kito-theron-101056268/", 
-           "Kito Theron", 
-           target = "_blank", 
-           style = "color: #007bff;"),
+    "European Option Pricing   |   Made by ",
+    tags$a(
+      href = "https://www.linkedin.com/in/kito-theron-101056268/",
+      "Kito Theron",
+      target = "_blank",
+      style = "color: #007bff;"
+    ),
     "   |"
   ),
   selected = "Option Pricing",
   collapsible = TRUE,
   theme = dark_theme,
-  
-  
+
+
   # Main App Panel
   nav_panel(
+    
     title = "Option Pricing",
     grid_page(
+      style = "overflow-y: hidden;",
       theme = dark_theme,
-      
+
       # Define the grid layout as lines describing each row
       layout = c(
         "header   header",
@@ -49,7 +53,7 @@ ui <- page_navbar(
       row_sizes = c("60px", "1fr"),
       col_sizes = c("300px", "1fr"),
       gap_size = "1rem",
-      
+
       # Header
       grid_card_text(
         area = "header",
@@ -57,99 +61,101 @@ ui <- page_navbar(
         alignment = "start",
         is_title = TRUE
       ),
-      
+
       # Sidebar
       grid_card(
+        style = "overflow-y: hidden;",
         area = "sidebar",
         card_header("Input Parameters"),
         card_body(
+          selectInput("xAxis", "Value 1:",
+            choices = c(
+              "Stock Price" = "stock_price",
+              "Volatility" = "volatility",
+              "Risk-Free Rate" = "risk_free_rate",
+              "Time to Expiration" = "time_to_expiration",
+              "Strike Price" = "strike_price"
+            ),
+            selected = "stock_price"
+          ),
+          selectInput("yAxis", "Value 2:",
+            choices = c(
+              "Stock Price" = "stock_price",
+              "Volatility" = "volatility",
+              "Risk-Free Rate" = "risk_free_rate",
+              "Time to Expiration" = "time_to_expiration",
+              "Strike Price" = "strike_price"
+            ),
+            selected = "volatility"
+          ),
           numericInput("stockPrice", "Stock Price (S):", value = 100),
           p("The current price of the underlying stock."),
-          
           numericInput("strikePrice", "Strike Price (K):", value = 100),
           p("The price at which the option can be exercised."),
-          
           numericInput("timeToExpiration", "Time to Expiration (T in years):", value = 1),
           p("The time remaining until the option's expiration, in years."),
-          
-          sliderInput("riskFreeRateSlider", "Risk-Free Rate (r):", 
-                      min = 0, max = 1, value = 0.05, step = 0.01),
-          p("The theoretical rate of return of an investment with zero risk."),
-          
-          sliderInput("volatilitySlider", "Volatility (σ):", 
-                      min = 0, max = 1, value = 0.2, step = 0.01),
-          p("The volatility of the stock's returns, as a decimal."),
-          
-          selectInput("xAxis", "Axis Value 1:", 
-            choices = c("Stock Price" = "stock_price", 
-                        "Volatility" = "volatility", 
-                        "Risk-Free Rate" = "risk_free_rate", 
-                        "Time to Expiration" = "time_to_expiration", 
-                        "Strike Price" = "strike_price"), 
-            selected = "stock_price"),
-          selectInput("yAxis", "Axis Value 2:", 
-            choices = c("Stock Price" = "stock_price", 
-                        "Volatility" = "volatility", 
-                        "Risk-Free Rate" = "risk_free_rate", 
-                        "Time to Expiration" = "time_to_expiration", 
-                        "Strike Price" = "strike_price"), 
-            selected = "volatility")
+          sliderInput("riskFreeRateSlider", "Risk-Free Rate (r):",
+            min = 0, max = 1, value = 0.05, step = 0.01
+          ),
+          p("The rate of return of an investment with zero risk."),
+          sliderInput("volatilitySlider", "Volatility (σ):",
+            min = 0, max = 1, value = 0.2, step = 0.01
+          ),
+            p("The degree of variation of a stock's price over time."),
         )
       ),
-      
+
       # Main content
       grid_card(
         area = "main",
         card_header("Option Price Results"),
         card_body(
+          style = "overflow-y: hidden;",  # Prevent vertical scrolling
           fluidRow(
-            column(6, verbatimTextOutput("call_price", placeholder = FALSE)),
-            column(6, verbatimTextOutput("put_price", placeholder = FALSE))
+        column(6, verbatimTextOutput("call_price", placeholder = FALSE)),
+        column(6, verbatimTextOutput("put_price", placeholder = FALSE))
           ),
-            grid_container(
-            layout = c(
-              "plot1 plot2",
-              "plot3 plot4",
-              "plot5 plot5"
-            ),
-            row_sizes = c("1fr", "1fr", "1fr"),
-            col_sizes = c("1fr", "1fr"),
-            gap_size = "10px",
-            grid_card("plot1", plotlyOutput("interactive_plot_call"), aspect_ratio = 0.9),
-            grid_card("plot2", plotlyOutput("interactive_plot_put"), aspect_ratio = 0.9),
-            grid_card("plot3", plotOutput("heatmap_plot_call"), aspect_ratio = 0.9),
-            grid_card("plot4", plotOutput("heatmap_plot_put"), aspect_ratio = 0.9),
-            grid_card("plot5", plotlyOutput("parallel_plot"), aspect_ratio = 0.9)
-            )
+          grid_container(
+        layout = c(
+          "plot1 plot2",
+          "plot3 plot4",
+          "plot5 plot5"
+        ),
+        row_sizes = c("1fr", "1fr", "1fr"),
+        col_sizes = c("1fr", "1fr"),
+        gap_size = "10px",
+        grid_card("plot1", plotlyOutput("interactive_plot_call"), aspect_ratio = 0.8),
+        grid_card("plot2", plotlyOutput("interactive_plot_put"), aspect_ratio = 0.8),
+        grid_card("plot3", plotOutput("heatmap_plot_call"), aspect_ratio = 0.8),
+        grid_card("plot4", plotOutput("heatmap_plot_put"), aspect_ratio = 0.8),
+        grid_card("plot5", plotlyOutput("parallel_plot"), aspect_ratio = 0.8)
+          )
         )
       )
     )
   ),
-  
+
   # Information Tab
   nav_panel(
     title = "About Options",
     fluidPage(
       h2("Introduction to Options & the Black-Scholes Model"),
-      p("Options are financial derivatives that give the holder the right, but not the obligation, to buy or sell an underlying asset at a specified strike price before or on a particular date."),
+      p("Options are financial derivatives that give the holder the right, but not the obligation, to buy or sell an underlying asset at a specified strike price on a particular date. American options can be exercised at any time before the expiration date, while European options can only be exercised on the expiration date."),
       h3("Call and Put Options"),
       p("A call option gives the holder the right to buy the underlying asset, whereas a put option gives the holder the right to sell it."),
-      
       h3("The Black-Scholes Model"),
       p("The Black-Scholes model is a mathematical model for pricing European-style options. It provides a theoretical estimate of the price of options and is widely used in financial markets."),
-      
       p("Key assumptions include a lognormal distribution of stock prices, constant volatility, and no dividends during the option's life."),
-      
       h4("The Black-Scholes Formula"),
-      p("Call Price: C = S⋅N(d₁) - K⋅e^(-rT)⋅N(d₂)"),
-      p("Put Price: P = K⋅e^(-rT)⋅N(-d₂) - S⋅N(-d₁)"),
+      p("Call Price = Stock Price * N(d1) - Strike Price * exp(-Risk-Free Rate * Time) * N(d2)"),
+      p("Put Price = Strike Price * exp(-Risk-Free Rate * Time) * N(-d2) - Stock Price * N(-d1)"),
       p("where:"),
-      p("d₁ = [ln(S/K) + (r + σ^2/2)T] / (σ√T)"),
-      p("d₂ = d₁ - σ√T"),
-      p("S = Stock Price, K = Strike Price, T = Time to Expiration, r = Risk-Free Rate, σ = Volatility, N(x) = CDF of standard normal distribution.")
+      p("d1 = [ln(Stock Price/Strike Price) + (Risk-Free Rate + Volatility^2/2) * Time] / (Volatility * sqrt(Time))"),
+      p("d2 = d1 - Volatility * sqrt(Time)"),
+      p("N(x) = Cumulative Distribution Function of the standard normal distribution")
     )
   )
 )
 
-# Run the application 
+# Run the application
 shinyApp(ui = ui, server = server, options = list(height = "1300"))
